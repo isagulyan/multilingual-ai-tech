@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+
+Sitemap: https://techpulse.media/sitemap.xml
+Host: https://techpulse.media
+
+# Crawl delay
+Crawl-delay: 1
+
+# Allow specific crawlers
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1

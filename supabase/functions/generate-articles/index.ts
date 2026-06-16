@@ -28,8 +28,25 @@ STRICT REQUIREMENTS:
    - featured_image_alt (descriptive alt text)
 5. SEO: Naturally integrate 3-5 target keywords
 6. Tone: Authoritative, future-focused, actionable insights
+7. CONTENT SAFETY (mandatory): Articles must be strictly professional tech journalism.
+   - NO adult, sexual, intimate, or romantic content of any kind
+   - NO graphic violence, gore, or disturbing imagery
+   - NO hate speech, discrimination, or politically divisive content
+   - NO personal attacks, defamation, or unverified negative claims about individuals
+   - Stick exclusively to technology, business, and professional topics
 
 Return ONLY valid JSON, no markdown or extra text.`;
+
+// ─── Content safety: block non-tech or unsafe content before DB insert ────────
+const UNSAFE_PATTERNS = [
+  /\b(sex|porn|nude|naked|erotic|intimate|adult content|xxx|nsfw)\b/i,
+  /\b(kill|murder|violence|gore|torture|abuse)\b/i,
+  /\b(hate|racist|sexist|homophob|slur)\b/i,
+];
+
+function isContentSafe(text: string): boolean {
+  return !UNSAFE_PATTERNS.some(re => re.test(text));
+}
 
 interface GeneratedArticle {
   title: string;
@@ -433,8 +450,16 @@ Deno.serve(async (req: Request) => {
     if (apiKey) {
       console.log("OpenAI API key found — generating with GPT-4o-mini...");
       try {
-        articleData = await generateArticleWithAI(apiKey);
-        mode = "ai";
+        const candidate = await generateArticleWithAI(apiKey);
+        const safetyTarget = `${candidate.title} ${candidate.excerpt} ${candidate.content}`;
+        if (!isContentSafe(safetyTarget)) {
+          console.warn("AI output failed content safety check — falling back to mock");
+          articleData = getMockArticle();
+          mode = "mock-fallback";
+        } else {
+          articleData = candidate;
+          mode = "ai";
+        }
       } catch (aiError) {
         console.warn("OpenAI generation failed, falling back to mock:", aiError);
         articleData = getMockArticle();

@@ -7,6 +7,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+// ─── Content safety: reject videos for unsafe article content ─────────────────
+const UNSAFE_PATTERNS = [
+  /\b(sex|porn|nude|naked|erotic|intimate|adult content|xxx|nsfw)\b/i,
+  /\b(kill|murder|violence|gore|torture|abuse)\b/i,
+  /\b(hate|racist|sexist|homophob|slur)\b/i,
+];
+
+function isContentSafe(text: string): boolean {
+  return !UNSAFE_PATTERNS.some(re => re.test(text));
+}
+
 // ─── Mock video CDN assets (royalty-free MP4 from public sources) ─────────────
 // These are real, publicly accessible short demo videos used as placeholders.
 const MOCK_VIDEO_POOL = [
@@ -89,7 +100,17 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // ── 2. Check for existing non-failed job ─────────────────────────────────
+    // ── 2. Content safety check ───────────────────────────────────────────────
+    const safetyTarget = `${article.title} ${article.excerpt ?? ""}`;
+    if (!isContentSafe(safetyTarget)) {
+      console.warn(`Content safety block for article ${article_id}: "${article.title}"`);
+      return new Response(
+        JSON.stringify({ success: false, error: "Article content did not pass safety review" }),
+        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // ── 3. Check for existing non-failed job ─────────────────────────────────
     if (!force) {
       const { data: existing } = await supabase
         .from("video_jobs")

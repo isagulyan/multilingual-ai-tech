@@ -219,6 +219,19 @@ Deno.serve(async (req: Request) => {
     const inserted = await insertArticleIntoDB(article, supabase);
     console.log(`Inserted article with ID: ${inserted?.id}`);
 
+    // Auto-trigger video generation for the new draft (fire-and-forget)
+    if (inserted?.id) {
+      fetch(`${supabaseUrl}/functions/v1/generate-video`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${supabaseKey}`,
+          "apikey": supabaseKey,
+        },
+        body: JSON.stringify({ article_id: inserted.id }),
+      }).catch(err => console.error("Video generation trigger failed:", err));
+    }
+
     return new Response(
       JSON.stringify({
         success: true,

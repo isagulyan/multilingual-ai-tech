@@ -1,4 +1,4 @@
-import { supabase, type Article, type Category, type Author, type AffiliateProduct } from './supabase';
+import { supabase, type Article, type Category, type Author, type AffiliateProduct, type VideoJob } from './supabase';
 
 export async function getArticles(options: {
   language?: string;
@@ -140,4 +140,57 @@ export async function getArticleStats() {
     total: articles.length,
     totalViews: articles.reduce((sum, a) => sum + (a.view_count || 0), 0),
   };
+}
+
+// ─── Video Jobs ───────────────────────────────────────────────────────────────
+
+export async function getVideoJobs(options: { articleId?: string; status?: string; limit?: number } = {}) {
+  let query = supabase.from('video_jobs').select('*').order('created_at', { ascending: false });
+  if (options.articleId) query = query.eq('article_id', options.articleId);
+  if (options.status) query = query.eq('status', options.status);
+  if (options.limit) query = query.limit(options.limit);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data || []) as VideoJob[];
+}
+
+export async function getVideoJobForArticle(articleId: string) {
+  const { data, error } = await supabase
+    .from('video_jobs')
+    .select('*')
+    .eq('article_id', articleId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data as VideoJob | null;
+}
+
+export async function triggerVideoGeneration(articleId: string, force = false) {
+  const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-video`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify({ article_id: articleId, force }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(err.error || 'Video generation failed');
+  }
+  return res.json();
+}
+
+export async function publishVideoJob(jobId: string) {
+  const { data, error } = await supabase
+    .from('video_jobs')
+    .update({ is_published: true, published_at: new Date().toISOString() })
+    .eq('id', jobId)
+    .select()
+    .maybeSingle();
+  if (error) throw error;
+  return data as VideoJob;
 }

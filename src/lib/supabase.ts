@@ -109,3 +109,26 @@ export type NewsletterSubscriber = {
   status: string;
   subscribed_at: string;
 };
+
+export type VideoJob = {
+  id: string;
+  article_id: string;
+  status: 'queued' | 'processing' | 'completed' | 'failed';
+  title: string;
+  headline: string;
+  excerpt: string;
+  thumbnail_url: string;
+  video_url: string;
+  duration_seconds: number;
+  provider: string;
+  provider_job_id: string;
+  provider_render_url: string;
+  is_published: boolean;
+  published_at: string | null;
+  error_message: string;
+  queued_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};

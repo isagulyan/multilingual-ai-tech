@@ -1,18 +1,46 @@
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /admin/*
 
-Sitemap: https://techpulse.media/sitemap.xml
-Host: https://techpulse.media
+# Legal pages — allow indexing
+Allow: /privacy
+Allow: /terms
+Allow: /disclaimer
+Allow: /about
+Allow: /contact
 
-# Crawl delay
+# Crawl delay for bots that respect it
 Crawl-delay: 1
 
-# Allow specific crawlers
+# Googlebot — no crawl delay, full access
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
 Crawl-delay: 0
 
+# Bingbot
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
 Crawl-delay: 1
+
+# Block AI training crawlers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+# Sitemap location
+Sitemap: https://techpulse.media/sitemap.xml
+Host: https://techpulse.media

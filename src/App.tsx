@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import CookieBanner from './components/CookieBanner';
 import HomePage from './pages/HomePage';
 import ArticlePage from './pages/ArticlePage';
 import CategoryPage from './pages/CategoryPage';
 import AdminPage from './pages/AdminPage';
 import SearchPage from './pages/SearchPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
+import DisclaimerPage from './pages/DisclaimerPage';
 import { AIChatWidget } from './components/AIChatWidget';
 import { useApp } from './context/AppContext';
 import { AppProvider } from './context/AppContext';
+
+const STATIC_PAGES = ['about', 'contact', 'privacy', 'terms', 'disclaimer'];
 
 function AppContent() {
   const { currentPage, currentArticleSlug, currentCategorySlug } = useApp();
@@ -32,6 +40,8 @@ function AppContent() {
     );
   }
 
+  const isStaticPage = STATIC_PAGES.includes(currentPage);
+
   return (
     <>
       <Header />
@@ -41,6 +51,11 @@ function AppContent() {
         {currentPage === 'category' && currentCategorySlug && <CategoryPage slug={currentCategorySlug} />}
         {currentPage === 'search' && <SearchPage />}
         {currentPage === 'admin' && <AdminPage />}
+        {currentPage === 'about' && <AboutPage />}
+        {currentPage === 'contact' && <ContactPage />}
+        {currentPage === 'privacy' && <PrivacyPage />}
+        {currentPage === 'terms' && <TermsPage />}
+        {currentPage === 'disclaimer' && <DisclaimerPage />}
         {currentPage === 'newsletter' && (
           <div className="max-w-[1400px] mx-auto px-6 py-16">
             <div className="text-center">
@@ -50,8 +65,9 @@ function AppContent() {
           </div>
         )}
       </main>
+      {!isStaticPage && <AIChatWidget />}
       <Footer />
-      <AIChatWidget />
+      <CookieBanner />
     </>
   );
 }

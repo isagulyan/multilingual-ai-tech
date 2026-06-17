@@ -35,6 +35,11 @@ export default function Footer() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const navigate = (page: string) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <footer className="bg-gray-950 dark:bg-black text-gray-400 mt-16">
       {/* Main footer content */}
@@ -113,17 +118,17 @@ export default function Footer() {
                 <h4 className="text-white font-semibold text-sm mb-3 uppercase tracking-wider">Company</h4>
               </li>
               <li>
-                <button className="text-sm text-gray-400 hover:text-brand-400 transition-colors text-left">
+                <button onClick={() => navigate('about')} className="text-sm text-gray-400 hover:text-brand-400 transition-colors text-left">
                   {t(language, 'footer.about')}
                 </button>
               </li>
               <li>
-                <button className="text-sm text-gray-400 hover:text-brand-400 transition-colors text-left">
+                <button onClick={() => navigate('contact')} className="text-sm text-gray-400 hover:text-brand-400 transition-colors text-left">
                   {t(language, 'footer.contact')}
                 </button>
               </li>
               <li>
-                <button className="text-sm text-gray-400 hover:text-brand-400 transition-colors text-left">
+                <button onClick={() => navigate('contact')} className="text-sm text-gray-400 hover:text-brand-400 transition-colors text-left">
                   {t(language, 'footer.advertise')}
                 </button>
               </li>
@@ -159,18 +164,21 @@ export default function Footer() {
               {t(language, 'footer.copyright')}
             </p>
             <div className="flex items-center gap-6 text-xs">
-              <button className="text-gray-500 hover:text-gray-300 transition-colors">
+              <button onClick={() => navigate('privacy')} className="text-gray-500 hover:text-gray-300 transition-colors">
                 {t(language, 'footer.privacy')}
               </button>
-              <button className="text-gray-500 hover:text-gray-300 transition-colors">
+              <button onClick={() => navigate('terms')} className="text-gray-500 hover:text-gray-300 transition-colors">
                 {t(language, 'footer.terms')}
               </button>
-              <button className="text-gray-500 hover:text-gray-300 transition-colors">
+              <button onClick={() => navigate('disclaimer')} className="text-gray-500 hover:text-gray-300 transition-colors">
+                Disclaimer
+              </button>
+              <button onClick={() => navigate('privacy')} className="text-gray-500 hover:text-gray-300 transition-colors">
                 Cookie Policy
               </button>
-              <button className="text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1">
+              <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1">
                 <ExternalLink size={11} /> Sitemap
-              </button>
+              </a>
             </div>
           </div>
 

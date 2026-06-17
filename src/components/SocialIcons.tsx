@@ -4,7 +4,7 @@ import { Youtube } from 'lucide-react';
 // Update these URLs with your actual social media profiles.
 export const SOCIAL_MEDIA = {
   FACEBOOK_URL:  'https://facebook.com/your-page-url',
-  INSTAGRAM_URL: 'https://instagram.com/your-profile-url',
+ INSTAGRAM_URL: 'https://www.instagram.com/isagulyan87',
   TIKTOK_URL:    'https://tiktok.com/@your-username',
   YOUTUBE_URL:   'https://youtube.com/your-channel-url',
 };

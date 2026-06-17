@@ -53,6 +53,19 @@ const sections = [
 
 *Advertising cookies* — Used by our advertising partners to serve relevant advertisements and measure campaign performance. These are only set with your consent.
 
+**Google AdSense & Google Advertising:**
+
+This website uses Google AdSense, a third-party advertising service provided by Google LLC. Google AdSense uses cookies and web beacons to serve advertisements based on your prior visits to this website and other websites across the internet. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to our site and/or other sites on the internet.
+
+You may opt out of personalised advertising by visiting Google's Ads Settings at https://www.google.com/settings/ads or by visiting the Network Advertising Initiative opt-out page at https://www.networkadvertising.org/managing/opt_out.asp.
+
+Google AdSense also uses the DoubleClick DART cookie to serve ads on our site. The DoubleClick DART cookie is used by Google in the ads served on our website and other websites on the internet. You may opt out of the use of the DoubleClick DART cookie by visiting the Google ad and content network privacy policy at https://www.google.com/privacy_ads.html.
+
+Our third-party advertising partners include:
+- Google LLC (AdSense / Google Ad Manager) — Privacy Policy: https://policies.google.com/privacy
+- Commission Junction / CJ Affiliate — Privacy Policy: https://www.conversantmedia.com/legal/privacy
+- ShareASale — Privacy Policy: https://www.shareasale.com/info/privacy-policy.cfm
+
 You can manage cookie preferences at any time via the cookie banner or your browser settings. Note that disabling certain cookies may affect site functionality.`,
   },
   {

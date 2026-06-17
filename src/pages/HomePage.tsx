@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getArticles, getCategories, getAffiliateProducts, subscribeNewsletter } from '../lib/api';
 import { ArticleCard, SectionHeader } from '../components/ArticleCard';
 import { useApp } from '../context/AppContext';
+import { useSEO } from '../hooks/useSEO';
 import { t } from '../lib/i18n';
 import { Mail, Star, TrendingUp, Zap, Brain, Sparkles, Shield, Server, Lock, Cloud, DollarSign, BarChart2, MessageSquare, Wallet } from 'lucide-react';
 import type { Article, Category, AffiliateProduct } from '../lib/supabase';
@@ -37,6 +38,8 @@ export default function HomePage() {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [loading, setLoading] = useState(true);
+
+  useSEO({ canonical: '/' });
 
   useEffect(() => {
     const loadData = async () => {

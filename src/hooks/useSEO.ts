@@ -13,6 +13,7 @@ export interface SEOOptions {
   canonical?: string;
   type?: 'website' | 'article';
   schema?: Record<string, unknown>;
+  noindex?: boolean;
 }
 
 function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
@@ -42,6 +43,7 @@ export function useSEO({
   canonical,
   type = 'website',
   schema,
+  noindex = false,
 }: SEOOptions = {}) {
   useEffect(() => {
     const fullTitle = title ? `${title} | ${BASE_TITLE}` : DEFAULT_TITLE;
@@ -57,8 +59,19 @@ export function useSEO({
     upsertMeta('name', 'twitter:title', fullTitle);
     upsertMeta('name', 'twitter:description', desc);
     upsertMeta('name', 'twitter:image', image);
+    upsertMeta(
+      'name',
+      'robots',
+      noindex
+        ? 'noindex,follow'
+        : 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
+    );
 
-    if (canonical) upsertLink('canonical', `${BASE_URL}${canonical}`);
+    const pageUrl = canonical ? `${BASE_URL}${canonical}` : BASE_URL;
+    upsertMeta('property', 'og:url', pageUrl);
+    upsertMeta('name', 'twitter:url', pageUrl);
+
+    if (canonical) upsertLink('canonical', pageUrl);
 
     const schemaId = 'dynamic-schema-ld';
     let schemaEl = document.getElementById(schemaId) as HTMLScriptElement | null;
@@ -81,10 +94,13 @@ export function useSEO({
       upsertMeta('property', 'og:description', DEFAULT_DESC);
       upsertMeta('property', 'og:image', DEFAULT_IMAGE);
       upsertMeta('property', 'og:type', 'website');
+      upsertMeta('property', 'og:url', BASE_URL);
       upsertMeta('name', 'twitter:title', DEFAULT_TITLE);
       upsertMeta('name', 'twitter:description', DEFAULT_DESC);
       upsertMeta('name', 'twitter:image', DEFAULT_IMAGE);
+      upsertMeta('name', 'twitter:url', BASE_URL);
+      upsertMeta('name', 'robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1');
       document.getElementById(schemaId)?.remove();
     };
-  }, [title, description, ogImage, canonical, type, schema]);
+  }, [title, description, ogImage, canonical, type, schema, noindex]);
 }

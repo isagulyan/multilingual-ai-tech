@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getArticles, getCategories } from '../lib/api';
 import { ArticleCard, SectionHeader } from '../components/ArticleCard';
 import { useApp } from '../context/AppContext';
+import { useSEO } from '../hooks/useSEO';
 import { t } from '../lib/i18n';
 import { ChevronLeft, Sparkles, Brain, Zap, Star, Shield, Server, Lock, Cloud, DollarSign, BarChart2, MessageSquare, TrendingUp, Wallet } from 'lucide-react';
 import type { Article, Category } from '../lib/supabase';
@@ -32,6 +33,33 @@ export default function CategoryPage({ slug }: { slug: string }) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useSEO({
+    title: category?.seo_title || category?.name,
+    description: category?.description
+      ? `${category.description} — Browse expert articles on TechPulse Media.`
+      : category?.name
+        ? `Expert ${category.name} articles, analysis, and news on TechPulse Media.`
+        : undefined,
+    canonical: category ? `/${category.slug}` : undefined,
+    schema: category
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: category.name,
+          description: category.description,
+          url: `https://techpulse.media/${category.slug}`,
+          isPartOf: { '@id': 'https://techpulse.media/#website' },
+          breadcrumb: {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://techpulse.media' },
+              { '@type': 'ListItem', position: 2, name: category.name, item: `https://techpulse.media/${category.slug}` },
+            ],
+          },
+        }
+      : undefined,
+  });
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -44,10 +72,6 @@ export default function CategoryPage({ slug }: { slug: string }) {
         const currentCat = allCats.find(c => c.slug === slug);
         setCategory(currentCat || null);
         setCategories(allCats);
-
-        if (currentCat) {
-          document.title = `${currentCat.name} - TechPulse Media`;
-        }
       } catch (error) {
         console.error('Error loading category:', error);
       } finally {

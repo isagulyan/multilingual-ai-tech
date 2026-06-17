@@ -3,9 +3,12 @@ import { getArticleBySlug, getArticles } from '../lib/api';
 import { ArticleCard, TagList } from '../components/ArticleCard';
 import { NewsletterSubscription } from '../components/NewsletterSubscription';
 import { useApp } from '../context/AppContext';
+import { useSEO } from '../hooks/useSEO';
 import { t } from '../lib/i18n';
 import { Eye, Calendar, Clock, Share2, ChevronLeft } from 'lucide-react';
 import type { Article } from '../lib/supabase';
+
+const BASE_URL = 'https://techpulse.media';
 
 function formatDate(dateStr: string, lang: string) {
   return new Date(dateStr).toLocaleDateString(
@@ -18,11 +21,83 @@ function formatISO(dateStr: string) {
   return new Date(dateStr).toISOString();
 }
 
+function buildArticleSchema(article: Article) {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'NewsArticle',
+        '@id': `${BASE_URL}/articles/${article.slug}#article`,
+        headline: article.title,
+        description: article.excerpt,
+        image: {
+          '@type': 'ImageObject',
+          url: article.og_image || article.featured_image,
+          width: 1200,
+          height: 630,
+        },
+        datePublished: formatISO(article.published_at),
+        dateModified: formatISO(article.updated_at),
+        author: {
+          '@type': 'Person',
+          name: article.author?.name || 'TechPulse Media',
+          url: `${BASE_URL}/about`,
+          ...(article.author?.avatar_url && { image: article.author.avatar_url }),
+        },
+        publisher: {
+          '@id': `${BASE_URL}/#organization`,
+        },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': `${BASE_URL}/articles/${article.slug}`,
+        },
+        articleSection: article.category?.name,
+        keywords: article.tags?.join(', '),
+        inLanguage: article.language || 'en',
+        isAccessibleForFree: true,
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${BASE_URL}/articles/${article.slug}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: BASE_URL,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: article.category?.name || 'Articles',
+            item: `${BASE_URL}/${article.category?.slug || 'articles'}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: article.title,
+            item: `${BASE_URL}/articles/${article.slug}`,
+          },
+        ],
+      },
+    ],
+  };
+}
+
 export default function ArticlePage({ slug }: { slug: string }) {
   const { language, setCurrentPage, setCurrentArticleSlug, setCurrentCategorySlug } = useApp();
   const [article, setArticle] = useState<Article | null>(null);
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useSEO({
+    title: article?.seo_title || article?.title,
+    description: article?.seo_description || article?.excerpt,
+    ogImage: article?.og_image || article?.featured_image,
+    canonical: article ? `/articles/${article.slug}` : undefined,
+    type: 'article',
+    schema: article ? buildArticleSchema(article) : undefined,
+  });
 
   useEffect(() => {
     const loadArticle = async () => {
@@ -30,37 +105,6 @@ export default function ArticlePage({ slug }: { slug: string }) {
         const data = await getArticleBySlug(slug);
         if (data) {
           setArticle(data);
-          document.title = data.seo_title || data.title;
-
-          const metaDescription = document.querySelector('meta[name="description"]');
-          if (metaDescription) {
-            metaDescription.setAttribute('content', data.seo_description || data.excerpt);
-          }
-
-          const script = document.createElement('script');
-          script.type = 'application/ld+json';
-          script.text = JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Article',
-            headline: data.title,
-            description: data.excerpt,
-            image: data.og_image || data.featured_image,
-            datePublished: formatISO(data.published_at),
-            dateModified: formatISO(data.updated_at),
-            author: {
-              '@type': 'Person',
-              name: data.author?.name || 'TechPulse Media',
-              image: data.author?.avatar_url,
-            },
-            publisher: {
-              '@type': 'Organization',
-              name: 'TechPulse Media',
-              logo: { '@type': 'ImageObject', url: 'https://techpulse.media/logo.svg' },
-            },
-          });
-          document.head.appendChild(script);
-
-          // Load related articles from same category
           if (data.category_id) {
             getArticles({ language: data.language, categorySlug: data.category?.slug, limit: 4 })
               .then(related => setRelatedArticles(related.filter(a => a.id !== data.id).slice(0, 2)))

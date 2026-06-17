@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getArticles } from '../lib/api';
 import { ArticleCard } from '../components/ArticleCard';
 import { useApp } from '../context/AppContext';
+import { useSEO } from '../hooks/useSEO';
 import { t } from '../lib/i18n';
 import { Search, ChevronLeft } from 'lucide-react';
 import type { Article } from '../lib/supabase';
@@ -11,6 +12,15 @@ export default function SearchPage() {
   const [results, setResults] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+
+  useSEO({
+    title: searchQuery ? `Search: "${searchQuery}"` : 'Search Articles',
+    description: searchQuery
+      ? `Search results for "${searchQuery}" on TechPulse Media.`
+      : 'Search thousands of technology, AI, SaaS, and business articles on TechPulse Media.',
+    canonical: '/search',
+    noindex: true,
+  });
 
   useEffect(() => {
     if (!searchQuery.trim()) {
